@@ -57,14 +57,7 @@ namespace Eksamensopgave_S3_1
             int UdgivelsesDag, int UdgivelsesMåned, int UdgivelsesÅr, int AntalEksemplarer, string ISBN)
         {
             // Check if any of the required book details are missing or invalid
-            if (string.IsNullOrEmpty(Forfatter) || string.IsNullOrEmpty(Titel) ||
-                string.IsNullOrEmpty(Udgiver) || UdgivelsesDag < 1 ||
-                UdgivelsesMåned < 1 || UdgivelsesÅr < 1 ||
-                AntalEksemplarer < 1 || string.IsNullOrEmpty(ISBN))
-            {
-                // If they are, throw an exception with an error message
-                throw new ArgumentException("One or more of the provided arguments are invalid.");
-            }
+            ValiderBogData(Forfatter, Titel, Udgiver, UdgivelsesDag, UdgivelsesMåned, UdgivelsesÅr, AntalEksemplarer, ISBN);
 
             // Create a new 'Bog' (Book) object using the provided details
             Bog bog = new Bog(
@@ -72,9 +65,7 @@ namespace Eksamensopgave_S3_1
                 Forfatter,
                 Titel,
                 Udgiver,
-                UdgivelsesDag,
-                UdgivelsesMåned,
-                UdgivelsesÅr, // Create a new DateOnly object from the publication year
+                new DateOnly(UdgivelsesÅr, UdgivelsesMåned, UdgivelsesDag), // Create a new DateOnly object from the publication year/month/day
                 AntalEksemplarer,
                 ISBN
             );
@@ -90,17 +81,11 @@ namespace Eksamensopgave_S3_1
         }
 
         public Bog RedigereBog(string Forfatter, string Titel, string Udgiver,
-            int UdgivelsesDag, int UdgivelsesMåned, int Udgivelsesår, int AntalEksemplarer, string ISBN)
+            int UdgivelsesDag, int UdgivelsesMåned, int UdgivelsesÅr, int AntalEksemplarer, string ISBN)
         {
             // Validate the input arguments to ensure none are null, empty, or less than 1.
             // An ArgumentException is thrown if any of the provided values are invalid.
-            if (string.IsNullOrEmpty(Forfatter) || string.IsNullOrEmpty(Titel) ||
-                string.IsNullOrEmpty(Udgiver) || UdgivelsesDag < 1 ||
-                UdgivelsesMåned < 1 || Udgivelsesår < 1 ||
-                AntalEksemplarer < 1 || string.IsNullOrEmpty(ISBN))
-            {
-                throw new ArgumentException("One or more of the provided arguments are invalid.");
-            }
+            ValiderBogData(Forfatter, Titel, Udgiver, UdgivelsesDag, UdgivelsesMåned, UdgivelsesÅr, AntalEksemplarer, ISBN);
 
             // Find the book in the database table ('BogTabel') that matches the given ISBN.
             var bog = model.BogTabel.FirstOrDefault(b => b.ISBN == ISBN);
@@ -121,12 +106,8 @@ namespace Eksamensopgave_S3_1
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.Titel)));
                 bog.Udgiver = Udgiver;
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.Udgiver)));
-                bog.UdgivelsesDag = UdgivelsesDag;
-                PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.UdgivelsesDag)));
-                bog.UdgivelsesMåned = UdgivelsesMåned;
-                PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.UdgivelsesMåned)));
-                bog.UdgivelsesÅr = Udgivelsesår;
-                PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.UdgivelsesÅr)));
+                bog.UdgivelseDato = new DateOnly(UdgivelsesÅr, UdgivelsesMåned, UdgivelsesDag);
+                PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.UdgivelseDato)));
                 bog.AntalEksemplarer = AntalEksemplarer;
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.AntalEksemplarer)));
             }
@@ -143,17 +124,61 @@ namespace Eksamensopgave_S3_1
             return bog;
         }
 
-        public Bog FjernBog(Bog? bog, bool)
+        public Bog FjernBog(Bog? bog, int AntalEksemplarer = 0)
         {
             if (bog == null)
             {
                 throw new Exception("Den valgte bog findes ikke");
             }
 
+            bog.AntalEksemplarer -= AntalEksemplarer;
             model.Remove(bog);
             model.SaveChanges();
             RaisePropertyChanged(nameof(BogListe));
             return bog;
+        }
+
+        private void ValiderBogData(string forfatter, string titel, string udgiver, int udgivelsesDag, int udgivelsesMåned, int udgivelsesÅr, int antalEksemplarer, string isbn)
+        {
+            if (string.IsNullOrEmpty(forfatter))
+            {
+                throw new ArgumentException("Forfatter cannot be null or empty.");
+            }
+
+            if (string.IsNullOrEmpty(titel))
+            {
+                throw new ArgumentException("Titel cannot be null or empty.");
+            }
+
+            if (string.IsNullOrEmpty(udgiver))
+            {
+                throw new ArgumentException("Udgiver cannot be null or empty.");
+            }
+
+            if (udgivelsesDag < 1 || udgivelsesDag > 31)
+            {
+                throw new ArgumentException("UdgivelsesDag must be between 1 and 31.");
+            }
+
+            if (udgivelsesMåned < 1 || udgivelsesMåned > 12)
+            {
+                throw new ArgumentException("UdgivelsesMåned must be between 1 and 12.");
+            }
+
+            if (udgivelsesÅr < 1)
+            {
+                throw new ArgumentException("UdgivelsesÅr must be a positive number.");
+            }
+
+            if (antalEksemplarer < 1)
+            {
+                throw new ArgumentException("AntalEksemplarer must be a positive number.");
+            }
+
+            if (string.IsNullOrEmpty(isbn))
+            {
+                throw new ArgumentException("ISBN cannot be null or empty.");
+            }
         }
     }
 }

@@ -40,10 +40,8 @@
                             <DataGridTextColumn Header="Forfatter" Binding="{Binding Forfatter}" />
                             <DataGridTextColumn Header="Titel" Binding="{Binding Titel}" />
                             <DataGridTextColumn Header="Udgiver" Binding="{Binding Udgiver}" />
+                            <DataGridTextColumn Header="Udgivelse" Binding="{Binding UdgivelseDato}" />
                             <DataGridTextColumn Header="Antal eksemplarer" Binding="{Binding AntalEksemplarer}" />
-                            <DataGridTextColumn Header="UdgivelsesDag" Binding="{Binding UdgivelsesDag}" />
-                            <DataGridTextColumn Header="UdgivelsesMåned" Binding="{Binding UdgivelsesMåned}" />
-                            <DataGridTextColumn Header="UdgivelsesÅr" Binding="{Binding UdgivelsesÅr}" />
                             <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" />
                         </DataGrid.Columns>
                     </DataGrid>

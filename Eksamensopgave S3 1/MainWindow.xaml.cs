@@ -1,4 +1,6 @@
 ﻿using EksamensopgaveDbContext;
+using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Eksamensopgave_S3_1
 {
@@ -81,10 +84,28 @@ namespace Eksamensopgave_S3_1
         {
             try
             {
-                FuncLayer.FjernBog(dgbBogListe.SelectedItem as Bog, txbFjernAntalEksemplarer.IsEnabled);
-
-                MessageBox.Show("Bogen blev Fjernet!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
-
+                if (cheackboxFjernEksemplarer.IsChecked == true)
+                {
+                    string text = txbFjernAntalEksemplarer.Text.Trim();
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        FuncLayer.RedigereBog(txbForfatter.Text, txbTitel.Text, txbUdgiver.Text,
+                            int.Parse(txbUdgivelsesDag.Text), int.Parse(txbUdgivelsesMåned.Text),
+                            int.Parse(txbUdgivelsesÅr.Text), FuncLayer.BogListe.FirstOrDefault(b => b.ISBN == txbISBN.Text).AntalEksemplarer - 
+                            int.Parse(text), txbISBN.Text);
+                        MessageBox.Show($"har nu fjernet {text} Antal Eksemplarer", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Antal Eksemplarer har brug for at have en gyldig nummer", "Info" , MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+                }
+                else
+                {
+                    FuncLayer.FjernBog(dgbBogListe.SelectedItem as Bog);
+                    MessageBox.Show("Bogen blev Fjernet!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
                 ClearUserInterface_RegistreringAfbøger();
             }
             catch (Exception ex)
@@ -103,9 +124,9 @@ namespace Eksamensopgave_S3_1
                     txbForfatter.Text = selectedBog.Forfatter.ToString();
                     txbTitel.Text = selectedBog.Titel.ToString();
                     txbUdgiver.Text = selectedBog.Udgiver.ToString();
-                    txbUdgivelsesDag.Text = selectedBog.UdgivelsesDag.ToString();
-                    txbUdgivelsesMåned.Text = selectedBog.UdgivelsesMåned.ToString();
-                    txbUdgivelsesÅr.Text = selectedBog.UdgivelsesÅr.ToString();
+                    txbUdgivelsesDag.Text = selectedBog.UdgivelseDato.Day.ToString();
+                    txbUdgivelsesMåned.Text = selectedBog.UdgivelseDato.Month.ToString();
+                    txbUdgivelsesÅr.Text = selectedBog.UdgivelseDato.Year.ToString();
                     txbAntalEksemplarer.Text = selectedBog.AntalEksemplarer.ToString();
                     txbISBN.Text = selectedBog.ISBN.ToString();
                 }
