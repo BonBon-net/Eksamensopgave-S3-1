@@ -1,4 +1,6 @@
-﻿//using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using EksamensopgaveDbContext;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,9 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using EksamensopgaveDbContext;
-using Microsoft.EntityFrameworkCore;
-//using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Windows.Shapes;
 
 
 namespace Eksamensopgave_S3_1
@@ -32,6 +32,8 @@ namespace Eksamensopgave_S3_1
         {
             model.BogTabel.Load();
             RaisePropertyChanged(nameof(BogListe));
+            model.UdlånBogTabel.Load();
+            RaisePropertyChanged(nameof(UdlånBogListe));
         }
         public ObservableCollection<Bog> BogListe
         {
@@ -40,24 +42,28 @@ namespace Eksamensopgave_S3_1
                 return model.BogTabel.Local.ToObservableCollection();
             }
         }
+        public ObservableCollection<UdlånBog> UdlånBogListe
+        {
+            get
+            {
+                return model.UdlånBogTabel.Local.ToObservableCollection();
+            }
+        }
 
         public bool isbnExists(string søgISBN)
         {
-            for (int i = 0; i < BogListe.Count; i++)
+            if (BogListe.FirstOrDefault(b => b.ISBN == søgISBN) != null)
             {
-                if (BogListe[i].ISBN == søgISBN)
-                {
-                    return true;
-                }
+                return true;
             }
             return false;
         }
 
         public Bog TilføjBog(string Forfatter, string Titel, string Udgiver,
-            int UdgivelsesDag, int UdgivelsesMåned, int UdgivelsesÅr, int AntalEksemplarer, string ISBN)
+            DateTime? date, int AntalEksemplarer, string ISBN)
         {
             // Check if any of the required book details are missing or invalid
-            ValiderBogData(Forfatter, Titel, Udgiver, UdgivelsesDag, UdgivelsesMåned, UdgivelsesÅr, AntalEksemplarer, ISBN);
+            ValiderBogData(Forfatter, Titel, Udgiver, date, AntalEksemplarer, ISBN);
 
             // Create a new 'Bog' (Book) object using the provided details
             Bog bog = new Bog(
@@ -65,7 +71,7 @@ namespace Eksamensopgave_S3_1
                 Forfatter,
                 Titel,
                 Udgiver,
-                new DateOnly(UdgivelsesÅr, UdgivelsesMåned, UdgivelsesDag), // Create a new DateOnly object from the publication year/month/day
+                date.Value, // Create a new DateOnly object from the publication year/month/day
                 AntalEksemplarer,
                 ISBN
             );
@@ -81,11 +87,11 @@ namespace Eksamensopgave_S3_1
         }
 
         public Bog RedigereBog(string Forfatter, string Titel, string Udgiver,
-            int UdgivelsesDag, int UdgivelsesMåned, int UdgivelsesÅr, int AntalEksemplarer, string ISBN)
+            DateTime? date, int AntalEksemplarer, string ISBN)
         {
             // Validate the input arguments to ensure none are null, empty, or less than 1.
             // An ArgumentException is thrown if any of the provided values are invalid.
-            ValiderBogData(Forfatter, Titel, Udgiver, UdgivelsesDag, UdgivelsesMåned, UdgivelsesÅr, AntalEksemplarer, ISBN);
+            ValiderBogData(Forfatter, Titel, Udgiver, date, AntalEksemplarer, ISBN);
 
             // Find the book in the database table ('BogTabel') that matches the given ISBN.
             var bog = model.BogTabel.FirstOrDefault(b => b.ISBN == ISBN);
@@ -106,7 +112,7 @@ namespace Eksamensopgave_S3_1
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.Titel)));
                 bog.Udgiver = Udgiver;
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.Udgiver)));
-                bog.UdgivelseDato = new DateOnly(UdgivelsesÅr, UdgivelsesMåned, UdgivelsesDag);
+                bog.UdgivelseDato = date.Value;
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.UdgivelseDato)));
                 bog.AntalEksemplarer = AntalEksemplarer;
                 PropertyChanged?.Invoke(existingBog, new PropertyChangedEventArgs(nameof(existingBog.AntalEksemplarer)));
@@ -124,60 +130,162 @@ namespace Eksamensopgave_S3_1
             return bog;
         }
 
-        public Bog FjernBog(Bog? bog, int AntalEksemplarer = 0)
+        public Bog FjernBog(Bog? bog)
         {
             if (bog == null)
             {
                 throw new Exception("Den valgte bog findes ikke");
             }
 
-            bog.AntalEksemplarer -= AntalEksemplarer;
             model.Remove(bog);
             model.SaveChanges();
             RaisePropertyChanged(nameof(BogListe));
             return bog;
         }
 
-        private void ValiderBogData(string forfatter, string titel, string udgiver, int udgivelsesDag, int udgivelsesMåned, int udgivelsesÅr, int antalEksemplarer, string isbn)
+        public UdlånBog TilføjUdlånBog(Bog bog, DateTime? date, string Låner, int AntalBøger)
         {
+            if (bog == null)
+            {
+                throw new Exception("Den valgte bog findes ikke");
+            }
+
+            ValiderUdlånBogData(date, Låner, AntalBøger);
+
+            // Create a new 'Bog' (Book) object using the provided details
+            UdlånBog udlånBog = new UdlånBog(
+                0,
+                date.Value,
+                Låner,
+                bog,
+                AntalBøger
+            );
+
+            model.Add(udlånBog);
+            //RedigereBog(bog.Forfatter, bog.Titel, bog.Titel, bog.UdgivelseDato.Day, bog.UdgivelseDato.Month, bog.UdgivelseDato.Year, bog.AntalEksemplarer - AntalBøger, bog.ISBN);
+            RaisePropertyChanged(nameof(UdlånBogListe));
+
+            return udlånBog;
+        }
+
+        public UdlånBog RedigereUdlånBog(DateTime? date, string låner, string ISBN, int antalBøger)
+        {
+            ValiderUdlånBogData(date, låner, antalBøger);
+
+            // Find the book in the database table ('BogTabel') that matches the given ISBN.
+            var existingUdlånBog = model.UdlånBogTabel.FirstOrDefault(b => b.Bog.ISBN == ISBN);
+            if (existingUdlånBog != null)
+            {
+                existingUdlånBog.UdlånDato = date.Value;
+                PropertyChanged?.Invoke(existingUdlånBog, new PropertyChangedEventArgs(nameof(existingUdlånBog.UdlånDato)));
+                existingUdlånBog.Låner = låner;
+                PropertyChanged?.Invoke(existingUdlånBog, new PropertyChangedEventArgs(nameof(existingUdlånBog.Låner)));
+                existingUdlånBog.Bog.ISBN = ISBN;
+                PropertyChanged?.Invoke(existingUdlånBog, new PropertyChangedEventArgs(nameof(existingUdlånBog.Bog.ISBN)));
+                existingUdlånBog.AntalBøger = antalBøger;
+                PropertyChanged?.Invoke(existingUdlånBog, new PropertyChangedEventArgs(nameof(existingUdlånBog.AntalBøger)));
+            }
+            else
+            {
+                throw new Exception("bog Eksisterer ikke");
+            }
+
+            model.SaveChanges();
+
+            return existingUdlånBog;
+        }
+
+        public UdlånBog FjernUdlånBog(UdlånBog? udlånBog)
+        {
+            if (udlånBog == null)
+            {
+                throw new Exception("Den valgte bog findes ikke");
+            }
+
+            model.Remove(udlånBog);
+            model.SaveChanges();
+            RaisePropertyChanged(nameof(UdlånBogListe));
+            return udlånBog;
+        }
+
+        private void ValiderBogData(string forfatter, string titel, string udgiver, DateTime? date, int antalEksemplarer, string isbn)
+        {
+            if (date == null)
+            {
+                throw new ArgumentException("Udgivelses Dag skal være valgt.");
+            }
+
             if (string.IsNullOrEmpty(forfatter))
             {
-                throw new ArgumentException("Forfatter cannot be null or empty.");
+                throw new ArgumentException("Forfatter kan ikke være null eller tom.");
             }
 
             if (string.IsNullOrEmpty(titel))
             {
-                throw new ArgumentException("Titel cannot be null or empty.");
+                throw new ArgumentException("Titel må ikke være tom eller null.");
             }
 
             if (string.IsNullOrEmpty(udgiver))
             {
-                throw new ArgumentException("Udgiver cannot be null or empty.");
+                throw new ArgumentException("Udgiver kan ikke være nul eller tom.");
             }
 
-            if (udgivelsesDag < 1 || udgivelsesDag > 31)
+            if (date.Value.Day < 1 || date.Value.Day > 30)
             {
-                throw new ArgumentException("UdgivelsesDag must be between 1 and 31.");
+                throw new ArgumentException("Udgivelses Dag skal være mellem 1 og 30.");
             }
 
-            if (udgivelsesMåned < 1 || udgivelsesMåned > 12)
+            if (date.Value.Month < 1 || date.Value.Month > 12)
             {
-                throw new ArgumentException("UdgivelsesMåned must be between 1 and 12.");
+                throw new ArgumentException("Udgivelses Måned skal være mellem 1 og 12.");
             }
 
-            if (udgivelsesÅr < 1)
+            if (date.Value.Year < 1)
             {
-                throw new ArgumentException("UdgivelsesÅr must be a positive number.");
+                throw new ArgumentException("Udgivelses År skal være et positivt tal.");
             }
 
             if (antalEksemplarer < 1)
             {
-                throw new ArgumentException("AntalEksemplarer must be a positive number.");
+                throw new ArgumentException("Antal Eksemplarer skal være et positivt tal.");
             }
 
             if (string.IsNullOrEmpty(isbn))
             {
-                throw new ArgumentException("ISBN cannot be null or empty.");
+                throw new ArgumentException("ISBN-nummeret må ikke være null eller tomt.");
+            }
+        }
+
+        private void ValiderUdlånBogData(DateTime? date, string Låner, int AntalBøger)
+        {
+            if (date == null)
+            {
+                throw new ArgumentException("Udgivelses Dag skal være valgt.");
+            }
+
+            if (date.Value.Day < 0 || date.Value.Day > 30)
+            {
+                throw new ArgumentException("Udgivelses Dag skal være mellem 1 og 30");
+            }
+
+            if (date.Value.Month < 0 || date.Value.Month > 12)
+            {
+                throw new ArgumentException("Release Month must be between 1 and 12.");
+            }
+
+            if (date.Value.Year < 0)
+            {
+                throw new ArgumentException("Låneår skal være et positivt tal.");
+            }
+
+            if (string.IsNullOrEmpty(Låner))
+            {
+                throw new ArgumentException("Låntagere kan ikke være nul eller tomme.");
+            }
+
+            if (AntalBøger < 1)
+            {
+                throw new ArgumentException("Antal Bøger skal være et positivt tal.");
             }
         }
     }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Eksamensopgave_S3_1.Migrations
 {
     [DbContext(typeof(Model))]
-    [Migration("20250916155401_Home_Test_1")]
-    partial class Home_Test_1
+    [Migration("20250917084511_opgave_s3_1")]
+    partial class opgave_s3_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,6 +58,45 @@ namespace Eksamensopgave_S3_1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BogTabel");
+                });
+
+            modelBuilder.Entity("EksamensopgaveDbContext.UdlånBog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AntalBøger")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BogId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Låner")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("UdlånDato")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BogId");
+
+                    b.ToTable("UdlånBogTabel");
+                });
+
+            modelBuilder.Entity("EksamensopgaveDbContext.UdlånBog", b =>
+                {
+                    b.HasOne("EksamensopgaveDbContext.Bog", "Bog")
+                        .WithMany()
+                        .HasForeignKey("BogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bog");
                 });
 #pragma warning restore 612, 618
         }

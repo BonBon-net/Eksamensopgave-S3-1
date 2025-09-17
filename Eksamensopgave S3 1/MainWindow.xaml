@@ -14,27 +14,21 @@
                         <ColumnDefinition Width="87*"/>
                         <ColumnDefinition Width="310*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="txbForfatter" HorizontalAlignment="Left" Margin="100,20,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="50,20,0,0" TextWrapping="Wrap" Text="Forfatter" VerticalAlignment="Top"/>
-                    <TextBox x:Name="txbTitel" HorizontalAlignment="Left" Margin="100,50,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="70,50,0,0" TextWrapping="Wrap" Text="Titel" VerticalAlignment="Top"/>
-                    <TextBox x:Name="txbUdgiver" HorizontalAlignment="Left" Margin="100,80,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="50,80,0,0" TextWrapping="Wrap" Text="Udgiver" VerticalAlignment="Top"/>
-                    <TextBox x:Name="txbUdgivelsesDag" HorizontalAlignment="Left" Margin="100,110,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="14,112,0,0" TextWrapping="Wrap" Text="UdgivelsesDag" VerticalAlignment="Top"/>
-                    <TextBox x:Name="txbUdgivelsesMåned" HorizontalAlignment="Left" Margin="100,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="-2,140,0,0" TextWrapping="Wrap" Text="UdgivelsesMåned" VerticalAlignment="Top"/>
-                    <TextBox x:Name="txbUdgivelsesÅr" HorizontalAlignment="Left" Margin="100,170,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="30,170,0,0" TextWrapping="Wrap" Text="Udgivelsesår" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbForfatter" HorizontalAlignment="Left" Margin="100,80,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="50,80,0,0" TextWrapping="Wrap" Text="Forfatter" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbTitel" HorizontalAlignment="Left" Margin="100,110,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="70,110,0,0" TextWrapping="Wrap" Text="Titel" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbUdgiver" HorizontalAlignment="Left" Margin="100,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="50,140,0,0" TextWrapping="Wrap" Text="Udgiver" VerticalAlignment="Top"/>
+                    <DatePicker x:Name="dpBogUdgivelseDato" HorizontalAlignment="Left" Margin="100,170,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="120"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="11,174,0,0" TextWrapping="Wrap" Text="Udgivelse Dato" VerticalAlignment="Top"/>
                     <TextBox x:Name="txbAntalEksemplarer" HorizontalAlignment="Left" Margin="100,200,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
                     <TextBlock HorizontalAlignment="Left" Margin="0,200,0,0" TextWrapping="Wrap" Text="Antal eksemplarer" VerticalAlignment="Top"/>
                     <TextBox x:Name="txbISBN" HorizontalAlignment="Left" Margin="100,230,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="txbISBN_TextChanged" Grid.ColumnSpan="2"/>
                     <TextBlock HorizontalAlignment="Left" Margin="70,230,0,0" TextWrapping="Wrap" Text="ISBN" VerticalAlignment="Top"/>
                     <Button x:Name="btnTilføjBog" Content="Tilføj" HorizontalAlignment="Left" Margin="100,275,0,0" VerticalAlignment="Top" Click="TilføjBog_Click"/>
                     <Button x:Name="btnRedigereBog" Content="Redigere" HorizontalAlignment="Left" Margin="135,275,0,0" VerticalAlignment="Top" Click="RedigereBog_Click" Grid.ColumnSpan="2"/>
-                    <Button x:Name="btnFjernBog" Content="Fjern" HorizontalAlignment="Left" Margin="50,325,0,0" VerticalAlignment="Top" Click="FjernBog_Click"/>
-                    <TextBox x:Name="txbFjernAntalEksemplarer" HorizontalAlignment="Left" Margin="85,325,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2"/>
-                    <CheckBox x:Name="cheackboxFjernEksemplarer" Content="Fjern Eksemplarer" HorizontalAlignment="Left" Margin="88,305,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Click="cheackboxFjernEksemplarer_Click"/>
+                    <Button x:Name="btnFjernBog" Content="Fjern" HorizontalAlignment="Left" Margin="17,275,0,0" VerticalAlignment="Top" Click="FjernBog_Click" Grid.Column="1"/>
                     <DataGrid x:Name="dgbBogListe" ItemsSource="{Binding BogListe}" Margin="94,10,10,10" AutoGenerateColumns="False" SelectionChanged="dgbBogListe_SelectionChanged" Grid.Column="1" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Forfatter" Binding="{Binding Forfatter}" />
@@ -48,7 +42,39 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Registrering af udlån">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <DatePicker x:Name="dpDatoUlåner" HorizontalAlignment="Left" Margin="80,10,0,0" VerticalAlignment="Top" Width="120"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Udlån Dato" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbLåner" HorizontalAlignment="Left" Margin="80,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,40,0,0" TextWrapping="Wrap" Text="Låner" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbLånteBog" HorizontalAlignment="Left" Margin="80,70,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="txbLånteBog_TextChanged"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,70,0,0" TextWrapping="Wrap" Text="Lånte bog" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="210,70,0,0" TextWrapping="Wrap" Text="ISBN" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txbAntalBøger" HorizontalAlignment="Left" Margin="80,100,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,100,0,0" TextWrapping="Wrap" Text="Antal bøger" VerticalAlignment="Top"/>
+                    <Button x:Name="btnUdlånBog" Content="Udlån bog" HorizontalAlignment="Left" Margin="110,123,0,0" VerticalAlignment="Top" Click="btnUdlånBog_Click"/>
+                    <Button x:Name="btnRedigereUdlån" Content="Redigere Udlån" HorizontalAlignment="Left" Margin="97,148,0,0" VerticalAlignment="Top" Click="btnRedigereUdlån_Click"/>
+                    <Button x:Name="btnFjernUdlån" Content="Fjern Udlån" HorizontalAlignment="Left" Margin="107,174,0,0" VerticalAlignment="Top" Click="btnFjernUdlån_Click"/>
+                    <DataGrid x:Name="dgbBogListeTilLånte" ItemsSource="{Binding BogListe}" Margin="397,10,10,10" AutoGenerateColumns="False" SelectionChanged="dgbVælgBogTilUdlånListe_SelectionChanged" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Forfatter" Binding="{Binding Forfatter}" />
+                            <DataGridTextColumn Header="Titel" Binding="{Binding Titel}" />
+                            <DataGridTextColumn Header="Udgiver" Binding="{Binding Udgiver}" />
+                            <DataGridTextColumn Header="Udgivelse" Binding="{Binding UdgivelseDato}" />
+                            <DataGridTextColumn Header="Antal eksemplarer" Binding="{Binding AntalEksemplarer}" />
+                            <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DataGrid x:Name="dgbUdlånBogListe" ItemsSource="{Binding UdlånBogListe}" Margin="10,205,397,10" AutoGenerateColumns="False" SelectionChanged="dgbUdlånBogListe_SelectionChanged" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Udlån Dato" Binding="{Binding UdlånDato}" />
+                            <DataGridTextColumn Header="Låner" Binding="{Binding Låner}" />
+                            <DataGridTextColumn Header="Antal Bøger" Binding="{Binding AntalBøger}" />
+                            <DataGridTextColumn Header="Titel" Binding="{Binding Bog.Titel}" />
+                            <DataGridTextColumn Header="ISBN" Binding="{Binding Bog.ISBN}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </TabItem>
         </TabControl>
 

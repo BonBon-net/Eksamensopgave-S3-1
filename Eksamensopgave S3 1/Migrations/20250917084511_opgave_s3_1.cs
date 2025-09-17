@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Eksamensopgave_S3_1.Migrations
 {
     /// <inheritdoc />
-    public partial class Home_Test_1 : Migration
+    public partial class opgave_s3_1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,11 +28,41 @@ namespace Eksamensopgave_S3_1.Migrations
                 {
                     table.PrimaryKey("PK_BogTabel", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "UdlånBogTabel",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UdlånDato = table.Column<DateOnly>(type: "date", nullable: false),
+                    Låner = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BogId = table.Column<int>(type: "int", nullable: false),
+                    AntalBøger = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UdlånBogTabel", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UdlånBogTabel_BogTabel_BogId",
+                        column: x => x.BogId,
+                        principalTable: "BogTabel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UdlånBogTabel_BogId",
+                table: "UdlånBogTabel",
+                column: "BogId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "UdlånBogTabel");
+
             migrationBuilder.DropTable(
                 name: "BogTabel");
         }
