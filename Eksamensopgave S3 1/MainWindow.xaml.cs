@@ -219,15 +219,15 @@ namespace Eksamensopgave_S3_1
             {
                 if (FuncLayer.isbnExists(txbLånteBog.Text))
                 {
-                    btnRedigereUdlån.IsEnabled = false;
-                    btnFjernUdlån.IsEnabled = false;
-                    btnUdlånBog.IsEnabled = true;
+                    btnUdlånBog.IsEnabled = false;
+                    btnRedigereUdlån.IsEnabled = true;
+                    btnFjernUdlån.IsEnabled = true;
                 }
                 else
                 {
-                    btnRedigereUdlån.IsEnabled = true;
-                    btnFjernUdlån.IsEnabled = true;
-                    btnUdlånBog.IsEnabled = false;
+                    btnRedigereUdlån.IsEnabled = false;
+                    btnFjernUdlån.IsEnabled = false;
+                    btnUdlånBog.IsEnabled = true;
                 }
             }
             catch (Exception ex)
