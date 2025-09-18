@@ -25,8 +25,10 @@ namespace Eksamensopgave_S3_1
         {
             InitializeComponent();
             DataContext = FuncLayer;
+            btnTilføjBog.IsEnabled = false;
             btnRedigereBog.IsEnabled = false;
             btnFjernBog.IsEnabled = false;
+            btnUdlånBog.IsEnabled = false;
             btnRedigereUdlån.IsEnabled = false;
             btnFjernUdlån.IsEnabled = false;
         }
@@ -127,9 +129,18 @@ namespace Eksamensopgave_S3_1
                 }
                 else
                 {
-                    btnRedigereBog.IsEnabled = false;
-                    btnFjernBog.IsEnabled = false;
-                    btnTilføjBog.IsEnabled = true;
+                    if (txbISBN.Text.Trim().Length > 0)
+                    {
+                        btnRedigereBog.IsEnabled = false;
+                        btnFjernBog.IsEnabled = false;
+                        btnTilføjBog.IsEnabled = true;
+                    }
+                    else
+                    {
+                        btnRedigereBog.IsEnabled = false;
+                        btnFjernBog.IsEnabled = false;
+                        btnTilføjBog.IsEnabled = false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -185,6 +196,7 @@ namespace Eksamensopgave_S3_1
             {
                 if (dgbUdlånBogListe.SelectedItem is UdlånBog selectedUdlånBog)
                 {
+                    MessageBox.Show(selectedUdlånBog.UdlånDato.Date.ToString());
                     dpDatoUlåner.Text = selectedUdlånBog.UdlånDato.ToString();
                     txbLåner.Text = selectedUdlånBog.Låner;
                     txbLånteBog.Text = selectedUdlånBog.Bog.ISBN;
@@ -219,15 +231,24 @@ namespace Eksamensopgave_S3_1
             {
                 if (FuncLayer.isbnExists(txbLånteBog.Text))
                 {
-                    btnUdlånBog.IsEnabled = false;
-                    btnRedigereUdlån.IsEnabled = true;
-                    btnFjernUdlån.IsEnabled = true;
-                }
-                else
-                {
                     btnRedigereUdlån.IsEnabled = false;
                     btnFjernUdlån.IsEnabled = false;
                     btnUdlånBog.IsEnabled = true;
+                }
+                else
+                {
+                    if (dgbUdlånBogListe.SelectedItem != null)
+                    {
+                        btnUdlånBog.IsEnabled = false;
+                        btnRedigereUdlån.IsEnabled = true;
+                        btnFjernUdlån.IsEnabled = true;
+                    }
+                    else
+                    {
+                        btnUdlånBog.IsEnabled = false;
+                        btnRedigereUdlån.IsEnabled = false;
+                        btnFjernUdlån.IsEnabled = false;
+                    }
                 }
             }
             catch (Exception ex)

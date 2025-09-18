@@ -72,6 +72,7 @@ namespace Eksamensopgave_S3_1
                 date.Value,
                 AntalEksemplarer,
                 ISBN
+                
             );
 
             model.BogTabel.Add(bog);
