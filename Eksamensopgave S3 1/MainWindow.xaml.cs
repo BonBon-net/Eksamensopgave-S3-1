@@ -245,9 +245,18 @@ namespace Eksamensopgave_S3_1
                     }
                     else
                     {
-                        btnUdlånBog.IsEnabled = false;
-                        btnRedigereUdlån.IsEnabled = false;
-                        btnFjernUdlån.IsEnabled = false;
+                        if (txbLåner.Text.Trim().Length > 0)
+                        {
+                            btnUdlånBog.IsEnabled = true;
+                            btnRedigereUdlån.IsEnabled = false;
+                            btnFjernUdlån.IsEnabled = false;
+                        }
+                        else
+                        {
+                            btnUdlånBog.IsEnabled = false;
+                            btnRedigereUdlån.IsEnabled = false;
+                            btnFjernUdlån.IsEnabled = false;
+                        }
                     }
                 }
             }
